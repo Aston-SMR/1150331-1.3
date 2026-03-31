@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
+  <title>SMR + 真數 + X2 整合版</title>
+  <meta name="theme-color" content="#000000" />
+  <style>
+    * { box-sizing: border-box; }
+    body{
+      margin:0;
+      background:#000;
+      color:#fff;
+      font-family: "Microsoft JhengHei", Arial, sans-serif;
+    }
+    .wrap{
+      max-width:1100px;
+      margin:0 auto;
+      padding:10px;
+    }
+    .title{
+      text-align:center;
+      font-size:24px;
+      font-weight:800;
+      letter-spacing:1px;
+      margin:6px 0 12px;
+      color:#ffd700;
+    }
+    .card{
+      background:#101010;
+      border:1px solid #2a2a2a;
+      border-radius:14px;
+      padding:10px;
+      margin-bottom:10px;
+      box-shadow:0 0 12px rgba(255,255,255,.04);
+    }
+    .row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .col{
+      flex:1;
+      min-width:260px;
+    }
+    .sideTitle{
+      font-size:18px;
+      font-weight:800;
+      margin-bottom:8px;
+      text-align:center;
+      padding:6px 8px;
+      border-radius:10px;
+    }
+    .playerTitle{ background:#0d47a1; }
+    .bankerTitle{ background:#8b0000; }
+
+    .slots{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:8px;
+    }
+    .slot3{
+      grid-column:1 / span 2;
+      width:50%;
+      margin:0 auto;
+    }
+    .slot{
+      background:#1a1a1a;
+      border:2px solid #333;
+      border-radius:12px;
+      min-height:64px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:28px;
+      font-weight:800;
+      color:#fff;
+    }
+    .slot.active{
+      border-color:#ffd700;
+      box-shadow:0 0 10px rgba(255,215,0,.35);
+    }
+
+    .resultBar{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:8px;
+      margin-top:10px;
+    }
+    .statBox{
+      background:#181818;
+      border-radius:10px;
+      padding:10px 8px;
+      text-align:center;
+      border:1px solid #2d2d2d;
+    }
+    .statBox .lab{
+      font-size:12px;
+      color:#aaa;
+      margin-bottom:4px;
+    }
+    .statBox .val{
+      font-size:22px;
+      font-weight:900;
+    }
+    .blue{ color:#4da3ff; }
+    .red{ color:#ff5c5c; }
+    .gold{ color:#ffd700; }
+    .green{ color:#4cff84; }
+    .orange{ color:#ffb347; }
+    .gray{ color:#bbb; }
+
+    .controlTop{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:8px;
+      margin-bottom:10px;
+      flex-wrap:wrap;
+    }
+    .controlTop .leftInfo{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+    .miniBox{
+      background:#181818;
+      border:1px solid #2c2c2c;
+      border-radius:10px;
+      padding:8px 10px;
+      font-size:14px;
+      font-weight:700;
+    }
+
+    .buttons{
+      display:grid;
+      grid-template-columns:repeat(7,1fr);
+      gap:8px;
+    }
+    button{
+      border:none;
+      border-radius:10px;
+      padding:12px 6px;
+      font-size:18px;
+      font-weight:800;
+      background:#222;
+      color:#fff;
+      cursor:pointer;
+    }
+    button:hover{ filter:brightness(1.12); }
+    .numBtn{ background:#1f1f1f; }
+    .actionBtn{ background:#303030; }
+    .skipBtn{ background:#5a3d00; }
+    .clearBtn{ background:#6d0000; }
+    .nextBtn{ background:#004d21; }
+
+    .predictGrid{
+      display:grid;
+      grid-template-columns:repeat(5,1fr);
+      gap:8px;
+    }
+    .predictBox{
+      background:#141414;
+      border:1px solid #2f2f2f;
+      border-radius:12px;
+      padding:8px;
+      min-height:132px;
+    }
+    .predictHead{
+      font-size:18px;
+      font-weight:900;
+      text-align:center;
+      margin-bottom:6px;
+      padding:4px 0;
+      border-radius:8px;
+    }
+    .headS{ background:#123d91; }
+    .headM{ background:#5a1d91; }
+    .headR{ background:#0d6b58; }
+    .headT{ background:#8c5b00; }
+    .headX2{ background:#8b0000; }
+
+    .pLine{
+      font-size:13px;
+      line-height:1.45;
+      margin:2px 0;
+      word-break:break-word;
+    }
+    .pMain{
+      font-size:24px;
+      font-weight:900;
+      text-align:center;
+      margin:6px 0;
+    }
+
+    .historyList{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+    .historyItem{
+      background:#111;
+      border:1px solid #2a2a2a;
+      border-radius:12px;
+      padding:8px;
+      font-size:13px;
+    }
+    .historyTop{
+      display:flex;
+      justify-content:space-between;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-bottom:4px;
+      font-weight:800;
+    }
+    .algoRow{
+      display:grid;
+      grid-template-columns:repeat(5,1fr);
+      gap:6px;
+      margin-top:6px;
+    }
+    .algoCell{
+      background:#1a1a1a;
+      border-radius:8px;
+      padding:6px;
+      text-align:center;
+      font-size:12px;
+    }
+
+    .rateGrid{
+      display:grid;
+      grid-template-columns:repeat(5,1fr);
+      gap:8px;
+    }
+    .rateBox{
+      background:#121212;
+      border:1px solid #2b2b2b;
+      border-radius:12px;
+      padding:10px 6px;
+      text-align:center;
+    }
+    .rateBox.best{
+      border-color:#ffd700;
+      box-shadow:0 0 12px rgba(255,215,0,.35);
+    }
+    .rateName{
+      font-size:16px;
+      font-weight:900;
+      margin-bottom:6px;
+    }
+    .rateVal{
+      font-size:24px;
+      font-weight:900;
+    }
+    .small{
+      font-size:12px;
+      color:#aaa;
+      margin-top:4px;
+    }
+
+    @media (max-width: 900px){
+      .predictGrid{ grid-template-columns:repeat(2,1fr); }
+      .rateGrid{ grid-template-columns:repeat(2,1fr); }
+      .algoRow{ grid-template-columns:repeat(2,1fr); }
+      .buttons{ grid-template-columns:repeat(4,1fr); }
+      .resultBar{ grid-template-columns:repeat(2,1fr); }
+    }
+    @media (max-width: 520px){
+      .title{ font-size:20px; }
+      .slot{ min-height:54px; font-size:24px; }
+      button{ font-size:16px; padding:11px 4px; }
+      .predictGrid{ grid-template-columns:1fr; }
+      .rateGrid{ grid-template-columns:1fr; }
+      .algoRow{ grid-template-columns:1fr; }
+      .historyItem{ font-size:12px; }
+      .pMain{ font-size:22px; }
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="title">SMR / 真數 / X2 整合版</div>
+
+  <div class="card">
+    <div class="controlTop">
+      <div class="leftInfo">
+        <div class="miniBox">目前局數：<span id="roundNo">1</span></div>
+        <div class="miniBox">目前輸入：<span id="inputPosLabel">P1</span></div>
+      </div>
+      <div class="leftInfo">
+        <button class="clearBtn" onclick="clearCurrentRound()">清除本局</button>
+        <button class="nextBtn" onclick="commitRound()">下一局</button>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col">
+        <div class="sideTitle playerTitle">閒家</div>
+        <div class="slots">
+          <div class="slot active" id="slot-P1"></div>
+          <div class="slot" id="slot-P2"></div>
+          <div class="slot slot3" id="slot-P3"></div>
+        </div>
+      </div>
+
+      <div class="col">
+        <div class="sideTitle bankerTitle">莊家</div>
+        <div class="slots">
+          <div class="slot" id="slot-B1"></div>
+          <div class="slot" id="slot-B2"></div>
+          <div class="slot slot3" id="slot-B3"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="resultBar">
+      <div class="statBox">
+        <div class="lab">閒最終點數</div>
+        <div class="val blue" id="playerFinal">0</div>
+      </div>
+      <div class="statBox">
+        <div class="lab">莊最終點數</div>
+        <div class="val red" id="bankerFinal">0</div>
+      </div>
+      <div class="statBox">
+        <div class="lab">本局結果</div>
+        <div class="val gold" id="currentWinner">未完成</div>
+      </div>
+      <div class="statBox">
+        <div class="lab">有效張數</div>
+        <div class="val gray" id="cardCount">0</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="buttons" id="keypad"></div>
+  </div>
+
+  <div class="card">
+    <div class="title" style="font-size:20px;margin:0 0 10px;">下一局預測</div>
+    <div class="predictGrid">
+      <div class="predictBox">
+        <div class="predictHead headS">S</div>
+        <div class="pMain" id="predSMain">-</div>
+        <div class="pLine" id="predS1">分數：-</div>
+        <div class="pLine" id="predS2">說明：-</div>
+      </div>
+      <div class="predictBox">
+        <div class="predictHead headM">M</div>
+        <div class="pMain" id="predMMain">-</div>
+        <div class="pLine" id="predM1">差值：-</div>
+        <div class="pLine" id="predM2">公牌數：-</div>
+        <div class="pLine" id="predM3">說明：-</div>
+      </div>
+      <div class="predictBox">
+        <div class="predictHead headR">R</div>
+        <div class="pMain" id="predRMain">-</div>
+        <div class="pLine" id="predR1">尾數和：-</div>
+        <div class="pLine" id="predR2">翻邊：-</div>
+        <div class="pLine" id="predR3">說明：-</div>
+      </div>
+      <div class="predictBox">
+        <div class="predictHead headT">真數</div>
+        <div class="pMain" id="predTMain">-</div>
+        <div class="pLine" id="predT1">總和：-</div>
+        <div class="pLine" id="predT2">副數：-</div>
+        <div class="pLine" id="predT3">真數：-</div>
+      </div>
+      <div class="predictBox">
+        <div class="predictHead headX2">X2</div>
+        <div class="pMain" id="predX2Main">-</div>
+        <div class="pLine" id="predX21">前局差值：-</div>
+        <div class="pLine" id="predX22">本局差值：-</div>
+        <div class="pLine" id="predX23">判斷：-</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="title" style="font-size:20px;margin:0 0 10px;">勝率統計</div>
+    <div class="rateGrid" id="rateGrid"></div>
+  </div>
+
+  <div class="card">
+    <div class="title" style="font-size:20px;margin:0 0 10px;">歷史紀錄</div>
+    <div class="historyList" id="historyList"></div>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY = 'baccarat_smr_x2_full_v1';
+
+const INPUT_ORDER = ['P1','P2','B1','B2','P3','B3'];
+let currentInputIndex = 0;
+
+let state = {
+  roundNo: 1,
+  currentCards: { P1:'', P2:'', P3:'', B1:'', B2:'', B3:'' },
+  history: [],
+  lastPredictions: null
+};
+
+const keypadCards = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
+
+function init(){
+  loadState();
+  buildKeypad();
+  refreshAll();
+}
+
+function buildKeypad(){
+  const keypad = document.getElementById('keypad');
+  keypad.innerHTML = '';
+
+  keypadCards.forEach(c=>{
+    const btn = document.createElement('button');
+    btn.className = 'numBtn';
+    btn.textContent = c;
+    btn.onclick = ()=>inputCard(c);
+    keypad.appendChild(btn);
+  });
+
+  const skipBtn = document.createElement('button');
+  skipBtn.className = 'skipBtn';
+  skipBtn.textContent = '不補鍵';
+  skipBtn.onclick = skipCard;
+  keypad.appendChild(skipBtn);
+
+  const delBtn = document.createElement('button');
+  delBtn.className = 'actionBtn';
+  delBtn.textContent = '刪一格';
+  delBtn.onclick = deleteLastCard;
+  keypad.appendChild(delBtn);
+
+  const clearBtn = document.createElement('button');
+  clearBtn.className = 'clearBtn';
+  clearBtn.textContent = '清除本局';
+  clearBtn.onclick = clearCurrentRound;
+  keypad.appendChild(clearBtn);
+}
+
+function loadState(){
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if(raw){
+    try{
+      const obj = JSON.parse(raw);
+      if(obj && typeof obj === 'object'){
+        state = obj;
+      }
+    }catch(e){}
+  }
+  if(!state.currentCards){
+    state.currentCards = { P1:'', P2:'', P3:'', B1:'', B2:'', B3:'' };
+  }
+  if(!state.history) state.history = [];
+  if(!state.roundNo) state.roundNo = state.history.length + 1;
+  currentInputIndex = findNextInputIndex();
+}
+
+function saveState(){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+function findNextInputIndex(){
+  for(let i=0;i<INPUT_ORDER.length;i++){
+    if(!state.currentCards[INPUT_ORDER[i]]) return i;
+  }
+  return INPUT_ORDER.length - 1;
+}
+
+function inputCard(card){
+  if(currentInputIndex >= INPUT_ORDER.length) return;
+  const key = INPUT_ORDER[currentInputIndex];
+  state.currentCards[key] = card;
+  currentInputIndex = Math.min(currentInputIndex + 1, INPUT_ORDER.length);
+  refreshAll();
+}
+
+function skipCard(){
+  if(currentInputIndex >= INPUT_ORDER.length) return;
+  currentInputIndex = Math.min(currentInputIndex + 1, INPUT_ORDER.length);
+  refreshAll();
+}
+
+function deleteLastCard(){
+  for(let i=INPUT_ORDER.length-1;i>=0;i--){
+    const key = INPUT_ORDER[i];
+    if(state.currentCards[key]){
+      state.currentCards[key] = '';
+      currentInputIndex = i;
+      refreshAll();
+      return;
+    }
+  }
+  currentInputIndex = 0;
+  refreshAll();
+}
+
+function clearCurrentRound(){
+  state.currentCards = { P1:'', P2:'', P3:'', B1:'', B2:'', B3:'' };
+  currentInputIndex = 0;
+  refreshAll();
+}
+
+function getCardNumeric(card){
+  if(!card) return null;
+  if(card === 'A') return 1;
+  if(['10','J','Q','K'].includes(card)) return 0;
+  return Number(card);
+}
+
+function getSValue(card){
+  if(!card) return 0;
+  if(card === '8') return 4;
+  if(card === '9' || card === 'A') return 3;
+  if(card === '2' || card === '3') return 2;
+  if(card === '4' || card === '5') return 1;
+  return 0;
+}
+
+function getTrueCountValue(card){
+  if(!card) return 0;
+  if(card === 'A' || card === '2' || card === '7' || card === '8' || card === '9') return 1;
+  if(card === '3' || card === '4' || card === '5' || card === '6') return -1;
+  return 0;
+}
+
+function getFinalPoint(cards){
+  let total = cards.reduce((sum,c)=>sum + (getCardNumeric(c) || 0), 0);
+  return total % 10;
+}
+
+function getWinner(playerFinal, bankerFinal){
+  if(playerFinal > bankerFinal) return '閒';
+  if(bankerFinal > playerFinal) return '莊';
+  return '和';
+}
+
+function getBigSmallDiff(playerFinal, bankerFinal){
+  return Math.abs(playerFinal - bankerFinal);
+}
+
+function getCurrentRoundData(){
+  const pCards = [state.currentCards.P1, state.currentCards.P2, state.currentCards.P3].filter(Boolean);
+  const bCards = [state.currentCards.B1, state.currentCards.B2, state.currentCards.B3].filter(Boolean);
+
+  const pFinal = getFinalPoint(pCards);
+  const bFinal = getFinalPoint(bCards);
+  const winner = (pCards.length + bCards.length >= 4) ? getWinner(pFinal, bFinal) : '未完成';
+  const diff = (winner === '未完成') ? null : getBigSmallDiff(pFinal, bFinal);
+
+  return {
+    pCards, bCards, pFinal, bFinal, winner, diff,
+    count: pCards.length + bCards.length
+  };
+}
+
+function predictSFromCards(allCards){
+  const score = allCards.reduce((sum,c)=>sum + getSValue(c), 0);
+  const bet = score > 5 ? '閒' : '莊';
+  return {
+    bet,
+    score,
+    lines: [
+      `分數：${score}`,
+      `說明：${score > 5 ? '大於5 → 打閒' : '小於等於5 → 打莊'}`
+    ]
+  };
+}
+
+function predictMFromCards(pCards, bCards){
+  const pSum = pCards.reduce((s,c)=>s + (getCardNumeric(c) || 0),0);
+  const bSum = bCards.reduce((s,c)=>s + (getCardNumeric(c) || 0),0);
+  const diff = pSum - bSum;
+
+  const all = [...pCards, ...bCards];
+  const publicCount = all.filter(c => ['10','J','Q','K'].includes(c)).length;
+  const parityPositive = publicCount % 2 === 0;
+  const diffSign = diff >= 0 ? 1 : -1;
+  const paritySign = parityPositive ? 1 : -1;
+  const finalSign = diffSign * paritySign;
+  const bet = finalSign >= 0 ? '閒' : '莊';
+
+  return {
+    bet,
+    diff,
+    publicCount,
+    lines: [
+      `差值：${diff}`,
+      `公牌數：${publicCount}（${parityPositive ? '正' : '負'}）`,
+      `說明：${diff >= 0 ? '差值正' : '差值負'} × ${parityPositive ? '公牌正' : '公牌負'}`
+    ]
+  };
+}
+
+function predictRFromCards(pCards, bCards){
+  const pRaw = pCards.reduce((s,c)=>s + (getCardNumeric(c) || 0),0);
+  const bRaw = bCards.reduce((s,c)=>s + (getCardNumeric(c) || 0),0);
+  const pTail = pRaw % 10;
+  const bTail = bRaw % 10;
+  const tailSum = pTail + bTail;
+  let bet = tailSum >= 10 ? '莊' : '閒';
+
+  const all = [...pCards, ...bCards];
+  const publicCount = all.filter(c => ['10','J','Q','K'].includes(c)).length;
+  const totalCards = all.length;
+  const shouldFlip =
+    totalCards === 5 ||
+    totalCards === 6 ||
+    (totalCards === 4 && publicCount === 0);
+
+  if(shouldFlip){
+    bet = bet === '閒' ? '莊' : '閒';
+  }
+
+  return {
+    bet,
+    tailSum,
+    flip: shouldFlip ? '是' : '否',
+    lines: [
+      `尾數和：${tailSum}`,
+      `翻邊：${shouldFlip ? '是' : '否'}`,
+      `說明：${shouldFlip ? '符合翻邊條件' : '原建議不翻'}`
+    ]
+  };
+}
+
+function getDecksByRound(roundNo){
+  if(roundNo <= 10) return 8;
+  if(roundNo <= 20) return 7;
+  if(roundNo <= 30) return 6;
+  if(roundNo <= 40) return 5;
+  if(roundNo <= 50) return 4;
+  return 3;
+}
+
+function predictTFromCards(allCards, roundNo){
+  const sum = allCards.reduce((s,c)=>s + getTrueCountValue(c),0);
+  const decks = getDecksByRound(roundNo);
+  const trueCount = sum / decks;
+  let bet = '觀望';
+  if(trueCount > 0) bet = '閒';
+  else if(trueCount < 0) bet = '莊';
+
+  return {
+    bet,
+    sum,
+    decks,
+    trueCount,
+    lines: [
+      `總和：${sum}`,
+      `副數：${decks}`,
+      `真數：${trueCount.toFixed(2)}`
+    ]
+  };
+}
+
+function getLastTwoNonTieRounds(history){
+  const nonTie = history.filter(h => h.winner !== '和');
+  if(nonTie.length < 2) return null;
+  return nonTie.slice(-2);
+}
+
+function predictX2(history, currentRoundData){
+  // X2 用最近兩個非和局差值來預測下一局
+  const combined = [...history];
+  if(currentRoundData && currentRoundData.winner !== '未完成' && currentRoundData.winner !== '和'){
+    combined.push({
+      winner: currentRoundData.winner,
+      diff: currentRoundData.diff
+    });
+  }
+
+  const nonTie = combined.filter(x => x.winner !== '和' && x.winner !== '未完成' && typeof x.diff === 'number');
+  if(nonTie.length < 2){
+    return {
+      bet:'觀望',
+      prevDiff:'-',
+      currDiff:'-',
+      judge:'不足兩把',
+      lines:[
+        '前局差值：-',
+        '本局差值：-',
+        '判斷：不足兩把'
+      ]
+    };
+  }
+
+  const prev = nonTie[nonTie.length - 2];
+  const curr = nonTie[nonTie.length - 1];
+
+  let bet = '觀望';
+  let judge = '';
+
+  if(curr.diff > prev.diff){
+    judge = '增 → 打本局輸的';
+    bet = curr.winner === '閒' ? '莊' : '閒';
+  }else if(curr.diff < prev.diff){
+    judge = '減 → 打本局贏的';
+    bet = curr.winner;
+  }else{
+    judge = '差值相同 → 觀望';
+    bet = '觀望';
+  }
+
+  return {
+    bet,
+    prevDiff: prev.diff,
+    currDiff: curr.diff,
+    judge,
+    lines:[
+      `前局差值：${prev.diff}`,
+      `本局差值：${curr.diff}`,
+      `判斷：${judge}`
+    ]
+  };
+}
+
+function computePredictionsFromRoundData(roundData){
+  const all = [...roundData.pCards, ...roundData.bCards];
+  return {
+    S: predictSFromCards(all),
+    M: predictMFromCards(roundData.pCards, roundData.bCards),
+    R: predictRFromCards(roundData.pCards, roundData.bCards),
+    T: predictTFromCards(all, state.roundNo),
+    X2: predictX2(state.history, roundData)
+  };
+}
+
+function colorBetText(bet){
+  if(bet === '閒') return `<span class="blue">${bet}</span>`;
+  if(bet === '莊') return `<span class="red">${bet}</span>`;
+  if(bet === '觀望') return `<span class="gray">${bet}</span>`;
+  return bet;
+}
+
+function commitRound(){
+  const rd = getCurrentRoundData();
+  if(rd.count < 4){
+    alert('至少要輸入4張牌才能成立一局');
+    return;
+  }
+  if(rd.winner === '未完成'){
+    alert('本局尚未完成');
+    return;
+  }
+
+  const nextPredictions = computePredictionsFromRoundData(rd);
+
+  let validated = null;
+  if(state.lastPredictions){
+    validated = validatePredictions(state.lastPredictions, rd.winner);
+  }
+
+  state.history.push({
+    roundNo: state.roundNo,
+    cards: { ...state.currentCards },
+    pFinal: rd.pFinal,
+    bFinal: rd.bFinal,
+    winner: rd.winner,
+    diff: rd.diff,
+    validation: validated,
+    nextPredictions: nextPredictions
+  });
+
+  state.lastPredictions = nextPredictions;
+  state.roundNo += 1;
+  state.currentCards = { P1:'', P2:'', P3:'', B1:'', B2:'', B3:'' };
+  currentInputIndex = 0;
+  saveState();
+  refreshAll();
+}
+
+function validatePredictions(preds, actualWinner){
+  const result = {};
+  ['S','M','R','T','X2'].forEach(k=>{
+    const bet = preds[k]?.bet || '觀望';
+    if(actualWinner === '和') result[k] = '和';
+    else if(bet === '觀望') result[k] = '觀望';
+    else result[k] = bet === actualWinner ? '準' : '失敗';
+  });
+  return result;
+}
+
+function getRateStats(){
+  const keys = ['S','M','R','T','X2'];
+  const stats = {};
+  keys.forEach(k=>stats[k] = { win:0, lose:0, tie:0, wait:0, rate:0 });
+
+  state.history.forEach(h=>{
+    if(!h.validation) return;
+    keys.forEach(k=>{
+      const r = h.validation[k];
+      if(r === '準') stats[k].win++;
+      else if(r === '失敗') stats[k].lose++;
+      else if(r === '和') stats[k].tie++;
+      else if(r === '觀望') stats[k].wait++;
+    });
+  });
+
+  keys.forEach(k=>{
+    const total = stats[k].win + stats[k].lose;
+    stats[k].rate = total ? (stats[k].win / total * 100) : 0;
+  });
+
+  return stats;
+}
+
+function refreshAll(){
+  updateSlots();
+  updateCurrentRoundInfo();
+  updatePredictions();
+  updateHistory();
+  updateRates();
+  saveState();
+}
+
+function updateSlots(){
+  INPUT_ORDER.forEach((key, idx)=>{
+    const el = document.getElementById('slot-' + key);
+    el.textContent = state.currentCards[key] || '';
+    el.classList.remove('active');
+    if(idx === currentInputIndex && currentInputIndex < INPUT_ORDER.length){
+      el.classList.add('active');
+    }
+  });
+  document.getElementById('roundNo').textContent = state.roundNo;
+  document.getElementById('inputPosLabel').textContent =
+    currentInputIndex < INPUT_ORDER.length ? INPUT_ORDER[currentInputIndex] : '已滿';
+}
+
+function updateCurrentRoundInfo(){
+  const rd = getCurrentRoundData();
+  document.getElementById('playerFinal').textContent = rd.pFinal;
+  document.getElementById('bankerFinal').textContent = rd.bFinal;
+  document.getElementById('cardCount').textContent = rd.count;
+
+  const winEl = document.getElementById('currentWinner');
+  winEl.textContent = rd.winner;
+  winEl.className = 'val gold';
+  if(rd.winner === '閒') winEl.className = 'val blue';
+  if(rd.winner === '莊') winEl.className = 'val red';
+  if(rd.winner === '和') winEl.className = 'val orange';
+}
+
+function updatePredictions(){
+  const rd = getCurrentRoundData();
+  const preds = computePredictionsFromRoundData(rd);
+
+  document.getElementById('predSMain').innerHTML = colorBetText(preds.S.bet);
+  document.getElementById('predS1').textContent = preds.S.lines[0];
+  document.getElementById('predS2').textContent = preds.S.lines[1];
+
+  document.getElementById('predMMain').innerHTML = colorBetText(preds.M.bet);
+  document.getElementById('predM1').textContent = preds.M.lines[0];
+  document.getElementById('predM2').textContent = preds.M.lines[1];
+  document.getElementById('predM3').textContent = preds.M.lines[2];
+
+  document.getElementById('predRMain').innerHTML = colorBetText(preds.R.bet);
+  document.getElementById('predR1').textContent = preds.R.lines[0];
+  document.getElementById('predR2').textContent = preds.R.lines[1];
+  document.getElementById('predR3').textContent = preds.R.lines[2];
+
+  document.getElementById('predTMain').innerHTML = colorBetText(preds.T.bet);
+  document.getElementById('predT1').textContent = preds.T.lines[0];
+  document.getElementById('predT2').textContent = preds.T.lines[1];
+  document.getElementById('predT3').textContent = preds.T.lines[2];
+
+  document.getElementById('predX2Main').innerHTML = colorBetText(preds.X2.bet);
+  document.getElementById('predX21').textContent = preds.X2.lines[0];
+  document.getElementById('predX22').textContent = preds.X2.lines[1];
+  document.getElementById('predX23').textContent = preds.X2.lines[2];
+}
+
+function getResultColorText(result){
+  if(result === '準') return `<span class="green">${result}</span>`;
+  if(result === '失敗') return `<span class="red">${result}</span>`;
+  if(result === '和') return `<span class="orange">${result}</span>`;
+  if(result === '觀望') return `<span class="gray">${result}</span>`;
+  return result;
+}
+
+function updateHistory(){
+  const box = document.getElementById('historyList');
+  box.innerHTML = '';
+
+  const list = [...state.history].reverse().slice(0, 20);
+
+  if(list.length === 0){
+    box.innerHTML = '<div class="historyItem">目前沒有歷史紀錄</div>';
+    return;
+  }
+
+  list.forEach(h=>{
+    const item = document.createElement('div');
+    item.className = 'historyItem';
+
+    const pCards = [h.cards.P1,h.cards.P2,h.cards.P3].filter(Boolean).join(' ');
+    const bCards = [h.cards.B1,h.cards.B2,h.cards.B3].filter(Boolean).join(' ');
+
+    item.innerHTML = `
+      <div class="historyTop">
+        <div>第 ${h.roundNo} 局</div>
+        <div>實際：${
+          h.winner === '閒' ? '<span class="blue">閒</span>' :
+          h.winner === '莊' ? '<span class="red">莊</span>' :
+          '<span class="orange">和</span>'
+        }</div>
+      </div>
+      <div>閒：${pCards || '-'}</div>
+      <div>莊：${bCards || '-'}</div>
+      <div>最終點數：閒 ${h.pFinal} / 莊 ${h.bFinal} ／ 差值：${h.diff}</div>
+      <div class="algoRow">
+        <div class="algoCell">S：${h.validation ? getResultColorText(h.validation.S) : '-'}</div>
+        <div class="algoCell">M：${h.validation ? getResultColorText(h.validation.M) : '-'}</div>
+        <div class="algoCell">R：${h.validation ? getResultColorText(h.validation.R) : '-'}</div>
+        <div class="algoCell">真數：${h.validation ? getResultColorText(h.validation.T) : '-'}</div>
+        <div class="algoCell">X2：${h.validation ? getResultColorText(h.validation.X2) : '-'}</div>
+      </div>
+    `;
+    box.appendChild(item);
+  });
+}
+
+function updateRates(){
+  const stats = getRateStats();
+  const container = document.getElementById('rateGrid');
+  container.innerHTML = '';
+
+  const keys = ['S','M','R','T','X2'];
+  let bestKey = null;
+  let bestRate = -1;
+  keys.forEach(k=>{
+    if(stats[k].rate > bestRate){
+      bestRate = stats[k].rate;
+      bestKey = k;
+    }
+  });
+
+  const nameMap = { S:'S', M:'M', R:'R', T:'真數', X2:'X2' };
+
+  keys.forEach(k=>{
+    const box = document.createElement('div');
+    box.className = 'rateBox' + (k === bestKey && bestRate > 0 ? ' best' : '');
+    box.innerHTML = `
+      <div class="rateName">${nameMap[k]}</div>
+      <div class="rateVal">${stats[k].rate.toFixed(1)}%</div>
+      <div class="small">準 ${stats[k].win} / 失敗 ${stats[k].lose}</div>
+      <div class="small">和 ${stats[k].tie} / 觀望 ${stats[k].wait}</div>
+    `;
+    container.appendChild(box);
+  });
+}
+
+init();
+</script>
+</body>
+</html>
